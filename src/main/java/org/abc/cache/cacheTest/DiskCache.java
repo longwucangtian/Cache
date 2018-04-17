@@ -143,8 +143,7 @@ public final class DiskCache implements Closeable {
     private final int valueCount;
     private long size = 0;
     private Writer journalWriter;
-    private final LinkedHashMap<String, Entry> lruEntries
-            = new LinkedHashMap<String, Entry>(0, 0.75f, true);
+    private final LinkedHashMap<String, Entry> lruEntries = new LinkedHashMap<>(0, 0.75f, true);
     private int redundantOpCount;
  
     /**

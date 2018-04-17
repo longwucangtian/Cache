@@ -16,6 +16,7 @@ public class MemoryCache<K,V> {
 	 * @param maxSize
 	 */
 	public MemoryCache (int maxSize){
+		SimulateURLValue.init();
 		if(maxSize <= 0){
 			throw new IllegalArgumentException("maxSize <= 0");
 		}
