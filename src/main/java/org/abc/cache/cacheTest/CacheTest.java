@@ -1,11 +1,26 @@
 package org.abc.cache.cacheTest;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class CacheTest {
 	private int maxSize = 10;
 	public MemoryCache<String, String> memoryCache = new MemoryCache<>(maxSize);
+	private static int MAXSIZE = 10;
+	private static String DIRECTORY_PATH = "E:/github/abc";
+	public static DiskCache diskCache;
+	static{
+		File directory = new File(DIRECTORY_PATH);
+		try {
+			diskCache = DiskCache.open(directory, 1, 1, MAXSIZE);
+		} catch (IOException e) {
+			
+		}
+	}
 	
 	/**
 	 * 下载数据并缓存到内存和硬盘中
@@ -44,7 +59,11 @@ public class CacheTest {
 		}
 		//查询二级缓存
 		System.out.println("-----查询二级缓存------");
-		
+		value = getFromDisk(key);
+		if(value != null){
+			System.out.println("-----二级缓存查询成功------");
+			return value;
+		}
 		
 		
 		//未在缓存中查询到参数，调用下载接口
@@ -87,4 +106,38 @@ public class CacheTest {
 	    return sb.toString();
 	}
 	
+	/**
+	 * 从二级缓存获取信息
+	 * @param key
+	 * @return
+	 */
+	private String getFromDisk(String key){
+		try{
+			DiskCache.Snapshot snapShot = diskCache.get(key);
+			if(snapShot != null){
+				FileInputStream fileInputStream = (FileInputStream)snapShot.getInputStream(0);
+		        FileDescriptor fileDescriptor = fileInputStream.getFD();
+				return getStringFromStream(fileInputStream);
+			}
+		}catch(Exception e){
+		}
+		return null;
+	}
+	
+	private String getStringFromStream(FileInputStream in){
+		try{
+			if(in == null){
+				return null;
+			}
+			StringBuilder stringBuilder = new StringBuilder();
+			int len = 0;  
+	        byte[] buf = new byte[1024];  
+	        while((len=in.read(buf))!=-1){  
+	        	stringBuilder.append(new String(buf,0,len));  
+	        }
+	        return stringBuilder.toString();
+		}catch(Exception e){
+			throw new RuntimeException("读取文件失败");
+		}
+	}
 }

@@ -298,7 +298,7 @@ public final class DiskCache implements Closeable {
  
         // prefer to pick up where we left off
         DiskCache cache = new DiskCache(directory, appVersion, valueCount, maxSize);
-        if (cache.journalFile.exists()) {
+        if (cache.journalFile.exists()) {    //如果当前目录已经存在
             try {
                 cache.readJournal();
                 cache.processJournal();
